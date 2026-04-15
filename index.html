@@ -294,10 +294,10 @@ async function downloadPDF() {
       const cnv     = wsRow.querySelector('canvas');
       if (!cnv) continue;
 
-      const traceW = usableW - 20;
-      const traceH = (cnv.height / cnv.width) * traceW / 3; // SCALE=3
+      const traceW = usableW - 22;
+      const traceH = Math.max((cnv.height / cnv.width) * traceW / 3, 28); // min 28mm tall
 
-      if (y + traceH + 5 > pH - mg) { doc.addPage(); y = mg; }
+      if (y + traceH + 10 > pH - mg) { doc.addPage(); y = mg; }
 
       // Emoji
       const eC = document.createElement('canvas');
@@ -307,19 +307,19 @@ async function downloadPDF() {
       eCtx.textAlign = 'center'; eCtx.textBaseline = 'middle';
       eCtx.fillText(emojiEl.textContent, 40, 40);
       await new Promise(r => setTimeout(r, 30));
-      doc.addImage(eC.toDataURL('image/png'), 'PNG', mg, y + traceH/2 - 7, 15, 15);
+      doc.addImage(eC.toDataURL('image/png'), 'PNG', mg, y + traceH/2 - 9, 18, 18);
 
-      // Word canvas
-      doc.addImage(cnv.toDataURL('image/png'), 'PNG', mg+17, y, traceW, traceH);
+      // Word canvas — scale up so it fills the row properly
+      doc.addImage(cnv.toDataURL('image/png'), 'PNG', mg + 22, y, traceW, traceH);
 
       // Separator
-      doc.setDrawColor(220,210,190);
-      doc.setLineWidth(0.2);
-      doc.setLineDashPattern([1,1.8],0);
-      doc.line(mg, y+traceH+3, pW-mg, y+traceH+3);
-      doc.setLineDashPattern([],0);
+      doc.setDrawColor(220, 210, 190);
+      doc.setLineWidth(0.25);
+      doc.setLineDashPattern([1, 1.8], 0);
+      doc.line(mg, y + traceH + 5, pW - mg, y + traceH + 5);
+      doc.setLineDashPattern([], 0);
 
-      y += traceH + 8;
+      y += traceH + 14; // bigger gap between rows
     }
 
     doc.save('trazar-letras.pdf');
